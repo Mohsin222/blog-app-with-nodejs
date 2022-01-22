@@ -25,6 +25,7 @@ app.set("views",template_path,'/views')
 hbs.registerPartials(partials_path)
 
 var currentUser;
+var profile;
 
 
 app.use(express.json())
@@ -45,7 +46,7 @@ app.get('/index',async(req,res)=>{
     const dd =await article.find({email: currentUser}).sort({createdAt:'desc'})
  
 
-res.render('index',{dd:dd})
+res.render('index',{dd:dd ,currentUser,profile})
 
 })
 app.get('/login',(req,res)=>{
@@ -64,19 +65,20 @@ console.log(email +'              ' +password)
 const useremail = await Register.findOne({email:email})
 
 //res.send(useremail)
-console.log(useremail.password)
+//console.log(useremail.password)
 
 if(useremail.password === password){
     
     
 
     currentUser =useremail.email
+    profile = useremail.profile
 //     const a =await article.find().sort({createdAt: 'desc'
 // })
 const dd =await article.find({email: currentUser}).sort({createdAt: 'desc'})
-console.log(dd)
+//console.log(dd)
 
- res.render('index',{dd:dd,currentUser})
+ res.render('index',{dd:dd,currentUser,currentUser})
 
 }else{
     res.send('password not match')
@@ -98,15 +100,18 @@ app.post('/register',async(req,res)=>{
 const registerEmployee = new Register({
     email :req.body.email,
     password :password,
-    conformpassword:req.body.conformpassword
+    conformpassword:req.body.conformpassword,
+    profile:req.body.profile
 })
 currentUser =req.body.email
+profile=req.body.profile
 
 const registered = await registerEmployee.save()
-console.log(registered)
-const a =await article.find().sort({createdAt: 'desc'
-})
-    res.status(201).render('index',{a:a,currentUser})
+//console.log(registered)
+// const a =await article.find({}).sort({createdAt: 'desc'
+// })
+const dd =await article.find({email: currentUser}).sort({createdAt: 'desc'})
+    res.status(201).render('index',{dd:dd,currentUser,profile})
 
 
 
@@ -129,14 +134,18 @@ try {
         email:currentUser,
         title:req.body.title,
         description:req.body.description,
-        imageUrl:req.body.imageUrl
+        imageUrl:req.body.imageUrl,
+        profile:profile,
+        
     })
 
     const savedArticle = await articles.save()
     console.log(savedArticle)
-    const a =await article.find().sort({createdAt: 'desc'
-})
-    res.status(201).render('index',{a:a})
+//     const a =await article.find().sort({createdAt: 'desc'
+// })
+const dd =await article.find({email: currentUser}).sort({createdAt: 'desc'})
+    res.status(201).render('index',{dd:dd,currentUser,profile})
+
 
 } catch (error) {
     console.log(error)
@@ -149,7 +158,7 @@ app.get('/blog',async(req,res)=>{
  
     const a =await article.find().sort({createdAt: 'desc'
 })
-    res.status(201).render('blog',{a:a,currentUser})
+    res.status(201).render('blog',{a:a,currentUser,profile})
 
  
 })
@@ -157,19 +166,25 @@ app.get('/feeds',async(req,res)=>{
  
     const a =await article.find().sort({createdAt: 'desc'
 })
-    res.status(201).render('feeds',{a:a,currentUser})
+    res.status(201).render('feeds',{a:a,currentUser,profile})
 
  
 })
 app.get('/gallery',async(req,res)=>{
-res.render('gallery',currentUser)
+res.render('gallery',{currentUser,profile})
 })
 app.get('/contact',async(req,res)=>{
-    res.render('contact',{currentUser})
+    res.render('contact',{currentUser,profile})
     })
     app.get('/about',async(req,res)=>{
-        res.render('about')
+        res.render('about',{currentUser,profile})
         })
+
+app.get('/single-post/:id',async(req,res)=>{
+            const data= await article.findById(req.params.id);
+            console.log(` Single Post  ${data}`)
+            res.render('single-post',{currentUser,profile,data:data})
+            })  
 
 app.listen(port,()=>{
     console.log(`server is running at  ${port}`)

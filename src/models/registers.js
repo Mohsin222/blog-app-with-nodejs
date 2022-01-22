@@ -13,6 +13,9 @@ const employeeSchema = new mongoose.Schema({
     conformpassword:{
         type:String,
         required:true
+    },
+    profile:{
+        type:String
     }
 
 })

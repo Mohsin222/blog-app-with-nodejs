@@ -21,6 +21,9 @@ const articleSchema = new mongoose.Schema({
       },
       imageUrl:{
         type:String
+      },
+      profile:{
+        type:String
       }
 
 })
