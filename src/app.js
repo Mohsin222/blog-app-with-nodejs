@@ -9,18 +9,19 @@ const register = require('./models/registers')
 const async = require('hbs/lib/async')
 const Register = require('./models/registers')
 const article = require('./models/article')
+const e = require('express')
 
 
 //static path 
-//  const  static_path=path.join(__dirname, "../public")
+  const  static_path=path.join(__dirname, "../public")
 
-// app.use(express.static(static_path))
+ app.use(express.static(static_path))
 //xx/xx
 
 const template_path=path.join(__dirname, "../templates/views")
 const partials_path=path.join(__dirname, "../templates/partials")
 app.set("view engine","hbs")
-app.set("views",template_path)
+app.set("views",template_path,'/views')
 hbs.registerPartials(partials_path)
 
 var currentUser='';
@@ -35,11 +36,22 @@ app.get('/',(req,res)=>{
 app.get('/register',(req,res)=>{
     res.render('register')
 })
+app.get('/index',async(req,res)=>{
+    const dd =await article.find({email: currentUser})
+ 
 
+res.render('index',{dd:dd})
+   // res.render('home',)
+})
 app.get('/login',(req,res)=>{
     res.render('login')
 })
+//  blogpage = async function(){
+//     const a =await article.find().sort({createdAt: 'desc'
+// })
 
+// res.render('home',{a:a})
+// }
 
 
 //login check
@@ -50,12 +62,12 @@ const password = req.body.password
 console.log(email +'              ' +password)
 
 const useremail = await Register.findOne({email:email})
-currentUser =useremail.email
+
 //res.send(useremail)
 console.log(useremail.password)
 
 if(useremail.password === password){
-    var title;
+    
     
     // res.status(201).render('home',{
     //     data:[
@@ -70,10 +82,14 @@ if(useremail.password === password){
     //     ]
     // }
     // )
-    const a =await article.find().sort({createdAt: 'desc'
-})
+    currentUser =useremail.email
+//     const a =await article.find().sort({createdAt: 'desc'
+// })
+const dd =await article.find({email: currentUser}).sort({createdAt: 'desc'})
+console.log(dd)
 
-res.render('home',{a:a})
+ res.render('index',{dd:dd})
+
 }else{
     res.send('password not match')
 }
@@ -84,6 +100,7 @@ res.render('home',{a:a})
 
 app.post('/register',async(req,res)=>{
     try {
+       
         // console.log(req.body.email)
         // res.send(req.body.email)
         const password = req.body.password
@@ -95,10 +112,14 @@ const registerEmployee = new Register({
     password :password,
     conformpassword:req.body.conformpassword
 })
+currentUser =req.body.email
 
 const registered = await registerEmployee.save()
 console.log(registered)
-res.status(201).render('home')
+const a =await article.find().sort({createdAt: 'desc'
+})
+    res.status(201).render('index',{a:a})
+
 
 
         }else{
@@ -120,21 +141,39 @@ try {
         email:currentUser,
         title:req.body.title,
         description:req.body.description,
+        imageUrl:req.body.imageUrl
     })
 
     const savedArticle = await articles.save()
     console.log(savedArticle)
+    const a =await article.find().sort({createdAt: 'desc'
+})
+    res.status(201).render('index',{a:a})
 
-    res.status(201).render('home')
 } catch (error) {
     console.log(error)
     res.status(400).send(error)
 }
 })
-app.get('/home',(req,res)=>{
 
-    res.render('home',)
+
+app.get('/blog',async(req,res)=>{
+ 
+    const a =await article.find().sort({createdAt: 'desc'
 })
+    res.status(201).render('blog',{a:a})
+
+ 
+})
+app.get('/gallery',async(req,res)=>{
+res.render('gallery')
+})
+app.get('/contact',async(req,res)=>{
+    res.render('contact')
+    })
+    app.get('/about',async(req,res)=>{
+        res.render('about')
+        })
 
 app.listen(port,()=>{
     console.log(`server is running at  ${port}`)
