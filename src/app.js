@@ -24,11 +24,15 @@ app.set("view engine","hbs")
 app.set("views",template_path,'/views')
 hbs.registerPartials(partials_path)
 
-var currentUser='';
+var currentUser;
 
 
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
+
+
+
+
 
 app.get('/',(req,res)=>{
     res.render('login')
@@ -37,21 +41,17 @@ app.get('/register',(req,res)=>{
     res.render('register')
 })
 app.get('/index',async(req,res)=>{
-    const dd =await article.find({email: currentUser})
+    console.log(currentUser)
+    const dd =await article.find({email: currentUser}).sort({createdAt:'desc'})
  
 
 res.render('index',{dd:dd})
-   // res.render('home',)
+
 })
 app.get('/login',(req,res)=>{
     res.render('login')
 })
-//  blogpage = async function(){
-//     const a =await article.find().sort({createdAt: 'desc'
-// })
 
-// res.render('home',{a:a})
-// }
 
 
 //login check
@@ -69,26 +69,14 @@ console.log(useremail.password)
 if(useremail.password === password){
     
     
-    // res.status(201).render('home',{
-    //     data:[
-    //         {
-    //             name:"ali",
-    //             title:"Tex1"
-    //                     },
-    //                     {
-    //                         name:"asif",
-    //                         title:"Tex2"
-    //                                 },
-    //     ]
-    // }
-    // )
+
     currentUser =useremail.email
 //     const a =await article.find().sort({createdAt: 'desc'
 // })
 const dd =await article.find({email: currentUser}).sort({createdAt: 'desc'})
 console.log(dd)
 
- res.render('index',{dd:dd})
+ res.render('index',{dd:dd,currentUser})
 
 }else{
     res.send('password not match')
@@ -118,7 +106,7 @@ const registered = await registerEmployee.save()
 console.log(registered)
 const a =await article.find().sort({createdAt: 'desc'
 })
-    res.status(201).render('index',{a:a})
+    res.status(201).render('index',{a:a,currentUser})
 
 
 
@@ -161,15 +149,23 @@ app.get('/blog',async(req,res)=>{
  
     const a =await article.find().sort({createdAt: 'desc'
 })
-    res.status(201).render('blog',{a:a})
+    res.status(201).render('blog',{a:a,currentUser})
+
+ 
+})
+app.get('/feeds',async(req,res)=>{
+ 
+    const a =await article.find().sort({createdAt: 'desc'
+})
+    res.status(201).render('feeds',{a:a,currentUser})
 
  
 })
 app.get('/gallery',async(req,res)=>{
-res.render('gallery')
+res.render('gallery',currentUser)
 })
 app.get('/contact',async(req,res)=>{
-    res.render('contact')
+    res.render('contact',{currentUser})
     })
     app.get('/about',async(req,res)=>{
         res.render('about')
